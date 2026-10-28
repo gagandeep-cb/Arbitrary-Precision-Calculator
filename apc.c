@@ -1,5 +1,103 @@
 #include "apc.h"
 
+int cla_validation(int argc, char *argv[])
+{
+    if (argc != 4)
+    {
+        printf("Error: Invalid number of arguments.\n");
+        printf("Usage: ./a.out <operand1> <operator> <operand2>\n");
+        return FAILURE;
+    }
+
+    // Validate operator: must be 1 character: +, -, *, x, X, 
+    if (strlen(argv[2]) != 1)
+    {
+        printf("Error: Invalid operator. Supported operators: +, -, '*', x, X, /\n");
+        return FAILURE;
+    }
+
+    char op = argv[2][0];
+    if (op != '+' && op != '-' && op != '*' && op != 'x' && op != 'X' && op != '/')
+    {
+        printf("Error: Invalid operator '%c'. Supported operators: +, -, *, x, X, /\n", op);
+        return FAILURE;
+    }
+
+    //Validate operand 1: optional sign (+/-) followed by digits 
+    int i = 0;
+    if (argv[1][0] == '\0')
+    {
+        printf("Error: Operand 1 is empty.\n");
+        return FAILURE;
+    }
+    if (argv[1][0] == '+' || argv[1][0] == '-')
+    {
+        i++;
+        if (argv[1][i] == '\0')
+        {
+            printf("Error: Operand 1 has sign but no digits.\n");
+            return FAILURE;
+        }
+    }
+    while (argv[1][i] != '\0')
+    {
+        if (argv[1][i] < '0' || argv[1][i] > '9')
+        {
+            printf("Error: Operand 1 contains non-digit character '%c'.\n", argv[1][i]);
+            return FAILURE;
+        }
+        i++;
+    }
+
+    // Validate operand 2: optional sign (+/-) followed by digits 
+    i = 0;
+    if (argv[3][0] == '\0')
+    {
+        printf("Error: Operand 2 is empty.\n");
+        return FAILURE;
+    }
+    if (argv[3][0] == '+' || argv[3][0] == '-')
+    {
+        i++;
+        if (argv[3][i] == '\0')
+        {
+            printf("Error: Operand 2 has sign but no digits.\n");
+            return FAILURE;
+        }
+    }
+    while (argv[3][i] != '\0')
+    {
+        if (argv[3][i] < '0' || argv[3][i] > '9')
+        {
+            printf("Error: Operand 2 contains non-digit character '%c'.\n", argv[3][i]);
+            return FAILURE;
+        }
+        i++;
+    }
+
+    // Validate division by zero 
+    if (op == '/')
+    {
+        int all_zeros = 1;
+        i = (argv[3][0] == '+' || argv[3][0] == '-') ? 1 : 0;
+        for (; argv[3][i] != '\0'; i++)
+        {
+            if (argv[3][i] != '0')
+            {
+                all_zeros = 0;
+                break;
+            }
+        }
+        if (all_zeros)
+        {
+            printf("Error: Division by zero is not allowed.\n");
+            return FAILURE;
+        }
+    }
+
+    return SUCCESS;
+}
+
 int insert_first(node **head, node **tail, int data)
 {
     node *new = malloc(sizeof(node));
@@ -57,6 +155,11 @@ int insert_last(node **head, node **tail, int data)
 void create_list(char *operand, node **head, node **tail)
 {
     int i = 0;
+
+    if (operand[0] == '+' || operand[0] == '-')
+    {
+        i = 1;
+    }
 
     while (operand[i] != '\0')
     {

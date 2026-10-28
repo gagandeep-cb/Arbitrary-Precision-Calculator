@@ -1,0 +1,13 @@
+# Object files
+*.o
+
+# Executables
+a.out
+*.exe
+test
+
+# Temporary / OS files
+*.swp
+*.bak
+.DS_Store
+Thumbs.db
